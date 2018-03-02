@@ -1,0 +1,86 @@
+vnote_backup_file_826537664 C:/Users/Administrator/Desktop/synchro/gobhazeng/学习/未分类/网站.md
+# 基本配置
+
+jdk：`/gobhazeng/jdk1.8.0_161`
+环境变量：`/etc/profile`
+
+tomcat：`/gobhazeng/apache-tomcat-9.0.5`
+启动tomcat：`/gobhazeng/apache-tomcat-9.0.5/bin/startup.sh`
+停止tomcat：`/gobhazeng/apache-tomcat-9.0.5/bin/shutdown.sh`
+
+# Blog
+
+页面地址：`/var/www/html`
+
+启动Apache：`/usr/sbin/apachectl start`
+停止Apache：`/usr/sbin/apachectl stop`
+重启Apache：`/usr/sbin/apachectl restart`
+
+Ubuntu Apache 加载SSL模块：` a2enmod ssl`
+启动SSL站点：`a2ensite default-ssl`
+加入监听端口443：`vim /etc/apache2/ports.conf`
+
+Certbot获取证书：`./certbot-auto certonly --email admin@gobhazeng.com --agree-tos --webroot -w /var/www/html/ -d www.gobhazeng.com -d gobhazeng.com`
+
+证书地址：`/etc/letsencrypt/live/www.gobhazeng.com`
+
+证书路径：
+
+```conf
+SSLCertificateFile /etc/letsencrypt/live/www.gobhazeng.com/fullchain.pem
+SSLCertificateKeyFile /etc/letsencrypt/live/www.gobhazeng.com/privkey.pem
+SSLCertificateChainFile /etc/letsencrypt/live/www.gobhazeng.com/chain.pem
+```
+
+配置SSL模块：`vim /etc/apache2/sites-enabled/default-ssl.conf`
+
+强制跳转HTTPS：
+`vim /etc/apache2/sites-enabled/000-default.conf`
+
+```conf
+RewriteEngine on
+RewriteCond  %{HTTPS} !=on
+RewriteRule  ^(.*) https://%{SERVER_NAME}$1 [L,R]
+```
+
+Mysql配置：
+
+```php
+// ** MySQL 设置 - 具体信息来自您正在使用的主机 ** //
+/** WordPress数据库的名称 */
+define('DB_NAME', 'wordpress');
+
+/** MySQL数据库用户名 */
+define('DB_USER', 'root');
+
+/** MySQL数据库密码 */
+define('DB_PASSWORD', 'dPVq1Rc0GIgIdgxM');
+
+/** MySQL主机 */
+define('DB_HOST', 'localhost');
+
+/** 创建数据表时默认的文字编码 */
+define('DB_CHARSET', 'utf8');
+
+/** 数据库整理类型。如不确定请勿更改 */
+define('DB_COLLATE', '');
+
+/**#@+
+ * 身份认证密钥与盐。
+ *
+ * 修改为任意独一无二的字串！
+ * 或者直接访问{@link https://api.wordpress.org/secret-key/1.1/salt/
+ * WordPress.org密钥生成服务}
+ * 任何修改都会导致所有cookies失效，所有用户将必须重新登录。
+ *
+ * @since 2.6.0
+ */
+define('AUTH_KEY',         'fMEb.`bZK^4c#bl0zTc/<5%asR9U9j-tPJSTH$Y<_F],wzPPnOc]o.0)B86|_7g3');
+define('SECURE_AUTH_KEY',  'p=nXv0dshh~?S(@XL}siCWFVg3EQ%MdmWON$]zv?.P6ugq:Sdp.w@f{1|(D^>q9z');
+define('LOGGED_IN_KEY',    ']Wgk]1[h5Xj3MDWpdK)kIS}T,~[nsrSLL,y)<$1g>nx9+2mtMfNK;uc&r,T|e.Ms');
+define('NONCE_KEY',        'r/.+}a^L4|b8 Q;Wr7kv~@&KxB9w, ;Bt,Fq]r+E`2,WIu`V*hB3pTl[7{6x]`0E');
+define('AUTH_SALT',        '+=9Mb#Fn.?H.6O&5/gmu[c}IgO1t5>{G>-rUBFik[~asT62RI~*~`dw%<{Q2E>_Y');
+define('SECURE_AUTH_SALT', 'sw*H[&AYVI8JD!)W?!o^z!eXg-|x$1D2W%l6~ojR@<6,xHwOGUe~_uQCe*2)w1{w');
+define('LOGGED_IN_SALT',   'wH(lUG$t4arCZgb^+Wl]96959*eW0-!EOi-4:^Wa}|YYX*/*R0? ln447(wj~&/$');
+define('NONCE_SALT',       ':P.2:)o,;wdPMJ61`ecS7f)t!L$:>-O^m9k3_cB&oNf3Z}e3`(S7Ew0Tosi%&6gI');
+```

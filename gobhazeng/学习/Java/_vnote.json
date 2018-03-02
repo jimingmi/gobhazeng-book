@@ -1,0 +1,65 @@
+{
+    "created_time": "2018-01-26T03:00:23Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2018-01-26T03:17:00Z",
+            "modified_time": "2018-02-02T03:28:06Z",
+            "name": "Java IO.md"
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2018-01-30T14:05:18Z",
+            "modified_time": "2018-01-30T14:05:18Z",
+            "name": "概念.md"
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2018-02-02T06:19:19Z",
+            "modified_time": "2018-02-11T08:08:26Z",
+            "name": "Netty.md"
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2018-02-08T05:12:41Z",
+            "modified_time": "2018-02-08T05:12:41Z",
+            "name": "Effective Java.md"
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2018-02-08T07:58:20Z",
+            "modified_time": "2018-02-11T08:18:24Z",
+            "name": "RPC.md"
+        },
+        {
+            "attachment_folder": "",
+            "attachments": [
+            ],
+            "created_time": "2018-02-12T05:55:54Z",
+            "modified_time": "2018-02-12T15:16:17Z",
+            "name": "工具类.md"
+        }
+    ],
+    "sub_directories": [
+        {
+            "name": "Android"
+        },
+        {
+            "name": "高并发学习"
+        },
+        {
+            "name": "Spring"
+        }
+    ],
+    "version": "1"
+}
