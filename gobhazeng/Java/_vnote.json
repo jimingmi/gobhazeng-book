@@ -59,6 +59,9 @@
         },
         {
             "name": "Spring"
+        },
+        {
+            "name": "Thread"
         }
     ],
     "version": "1"

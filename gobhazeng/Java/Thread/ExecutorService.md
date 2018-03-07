@@ -1,0 +1,618 @@
+# new Thread()的弊端
+
+先看一段传统的线程创建方式
+
+```java
+new Thread(new Runnable() {
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+    }
+}).start();
+```
+
+这种线程创建方式简单容易理解，但是存在很多问题：
+
+ - 每次都要`new Thread`来创建，性能差。
+ - 线程无法进行统一管理，不断的创建线程可能导致线程之间相互竞争，占用过多的系统资源。
+ - 没有诸如**定时执行**、**定期执行**、**线程中断**等方法。
+
+对于第一个问题，我们很容易想到通过池化来解决，对此Java提供了四种线程池。
+
+使用线程池带来的好处主要体现在：
+
+ - 重用存在的线程，减少对象创建、消亡的开销，性能好很多。
+ - 可有效控制**最大并发线程数**，提高系统资源的使用率，同时避免过多资源竞争，避免堵塞。
+ - 提供**定时执行**、**定期执行**、**单线程**、**并发数控制**等功能。
+
+# Java线程池
+
+Java通过Executors提供四种线程池，分别为：
+
+ - `newCachedThreadPool`创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。
+ - `newFixedThreadPool`创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。
+ - `newScheduledThreadPool`创建一个定长线程池，支持定时及周期性任务执行。
+ - `newSingleThreadExecutor`创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。
+
+## 四种线程池
+
+### newCachedThreadPool
+
+创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。
+
+```java
+ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+for (int i = 0; i < 10; i++) {
+    final int index = i;
+    try {
+        Thread.sleep(index * 1000);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+
+    cachedThreadPool.execute(new Runnable() {
+
+        @Override
+        public void run() {
+            System.out.println(index);
+        }
+    });
+}
+```
+
+**分析**
+
+`newCachedThreadPool`实例化的源码
+
+参数为：
+
+ - 线程池的基本大小为0
+ - 最大线程数为无限大（Integer.MAX_VALUE）
+ - 空闲线程等待时间为60L
+ - 时间单位为TimeUnit.SECONDS
+ - 堵塞队列使用`SynchronousQueue`
+
+由于使用了`SynchronousQueue`，插入的任务会堵塞，当执行第二个任务时第一个任务已经完成，会复用执行第一个任务的线程，而不用每次新建线程。
+
+```java
+public static ExecutorService newCachedThreadPool() {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue<Runnable>());
+}
+```
+
+
+
+
+
+### newFixedThreadPool
+
+创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。
+
+```java
+ExecutorService fixedThreadPool = Executors.newFixedThreadPool(3);
+for (int i = 0; i < 10; i++) {
+    final int index = i;
+    fixedThreadPool.execute(new Runnable() {
+
+
+        @Override
+        public void run() {
+            try {
+                System.out.println(index);
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    });
+}
+```
+
+**分析**
+
+### newScheduledThreadPool
+
+创建一个定长线程池，支持定时及周期性任务执行。
+
+```java
+ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(5);
+scheduledThreadPool.schedule(new Runnable() {
+
+    @Override
+    public void run() {
+        System.out.println("delay 3 seconds");
+    }
+}, 3, TimeUnit.SECONDS);
+```
+
+**分析**
+
+### newSingleThreadExecutor
+
+创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。
+
+```java
+ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+for (int i = 0; i < 10; i++) {
+    final int index = i;
+    singleThreadExecutor.execute(new Runnable() {
+
+        @Override
+        public void run() {
+            try {
+                System.out.println(index);
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    });
+}
+```
+
+**分析**
+
+## 分析ThreadPoolExecutor
+
+从资料参考来看，受限于硬件、内存和性能，我们不可能无限制的创建任意数量的线程，因为每一台机器允许的最大线程是一个有界值。线程池就是用这些有限个数的线程，去执行提交的任务。在一些多用户、高并发的环境中，提交的任务量是非常巨大的，一定会超过最大线程的界限，这时就必须使用排队机制。排队时的数据可以是存储在内存介质也可以是硬盘介质。这里`ThreadPoolExecutor`就是一个只支持任务在内存中排队的线程池实现，它通过`BlockingQueue`来暂存还没有执行的任务。
+
+上面四种线程池其实都是`ThreadPoolExecutor`，通过构造函数初始化不同的参数。
+
+从继承关系来看，`ThreadPoolExecutor`是`ExecutorService`接口的一个实现类。
+
+### ThreadPoolExecutor构造参数
+
+看一下其构造函数的代码：
+
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler) {
+        if (corePoolSize < 0 ||
+            maximumPoolSize <= 0 ||
+            maximumPoolSize < corePoolSize ||
+            keepAliveTime < 0)
+            throw new IllegalArgumentException();
+        if (workQueue == null || threadFactory == null || handler == null)
+            throw new NullPointerException();
+        this.acc = System.getSecurityManager() == null ?
+                null :
+                AccessController.getContext();
+        this.corePoolSize = corePoolSize;
+        this.maximumPoolSize = maximumPoolSize;
+        this.workQueue = workQueue;
+        this.keepAliveTime = unit.toNanos(keepAliveTime);
+        this.threadFactory = threadFactory;
+        this.handler = handler;
+    }
+```
+
+可以看到参数构成为：
+
+|  参数  |  说明  |
+|---|---|
+|  int corePoolSize  |  线程池的基本大小  |
+|  int maximumPoolSize  |  线程池中允许的最大线程数  |
+|  long keepAliveTime  |  空闲线程超时时间  |
+|  TimeUnit unit  |  时间间隔单位颗粒  |
+|  BlockingQueue<Runnable> workQueue  |  线程暂存队列  |
+|  ThreadFactory threadFactory  |  线程创建工厂  |
+|  RejectedExecutionHandler handler  |  线程池的饱和策略  |
+
+#### corePoolSize
+
+线程池的基本大小，即在没有任务执行时候的线程池的大小，只有当工作任务队列满了的时候才会创建超出这个数量的线程。
+
+其中，在刚刚创建`ThreadPoolExecutor`的时候，线程不会立即启动，而是有任务提交的时候才会启动，除非调用`prestartCoreThread`和`prestartAllCoreThreads`。
+
+#### maximumPoolSize
+
+线程池中允许的最大线程数，线程池中的当前线程数目不会超过该值。如果队列中任务已满，并且当前线程个数小于`maximumPoolSize`，那么会创建新的线程来执行任务。
+
+线程池创建之后，可以调用`setMaximumPoolSize()`改变运行的最大线程的数目。
+
+#### keepAliveTime
+
+当线程数大于核心时，`keepAliveTime`为终止前多余的空闲线程等待新任务的最长时间。
+
+#### TimeUnit
+
+时间间隔单位颗粒
+
+|  参数  |  说明  |
+|---|---|
+|  TimeUnit.DAYS  |  天  |
+|  TimeUnit.HOURS  |  小时  |
+|  TimeUnit.MINUTES  |  分钟  |
+|  TimeUnit.SECONDS  |  秒  |
+|  TimeUnit.MILLISECONDS  |  毫秒  |
+
+#### BlockingQueue
+
+`BlockingQueue`是一种阻塞队列。当线程池中的线程数超过它的`corePoolSize`的时候，线程会进入阻塞队列进行阻塞等待。
+
+通过`BlockingQueue`，线程池实现了阻塞功能
+
+|    |  Throws Exception  |  Special Value  |  Blocks  |  Times Out  |
+|---|---|---|---|---|
+|  Insert  |  add(o)  |  offer(o)  |  put(o)  |  offer(o, timeout, timeunit)  |
+|  Remove  |  remove(o)  |  poll()  |  take()  |  poll(timeout, timeunit)  |
+|  Examine  |  element()  |  peek()  |    |    |
+
+`BlockingQueue`的实现类有以下几种：
+
+##### ArrayBlockingQueue
+
+`ArrayBlockingQueue`是一个有边界的阻塞队列，它的内部实现是一个数组。有边界的意思是它的容量是有限的，我们必须在其初始化的时候指定它的容量大小，容量大小一旦指定就不可改变。
+
+ArrayBlockingQueue是以先进先出的方式存储数据，最新插入的对象是尾部，最新移出的对象是头部。
+
+```java
+public ArrayBlockingQueue(int capacity, boolean fair) {
+    if (capacity <= 0)
+        throw new IllegalArgumentException();
+    //数组实现
+    this.items = new Object[capacity];
+    lock = new ReentrantLock(fair);
+    notEmpty = lock.newCondition();
+    notFull =  lock.newCondition();
+}
+```
+
+```java
+//先进先出
+private void enqueue(E x) {
+    // assert lock.getHoldCount() == 1;
+    // assert items[putIndex] == null;
+    final Object[] items = this.items;
+    items[putIndex] = x;
+    if (++putIndex == items.length)
+        putIndex = 0;
+    count++;
+    notEmpty.signal();
+}
+```
+
+##### DelayQueue
+
+`DelayQueue`阻塞的是其内部元素
+
+`DelayQueue`可以用于定时关闭连接、缓存对象，超时处理等场景。
+
+```java
+//DelayQueue存放Delayed的实现类，可以通过getDelay返回保持的时间
+//如果返回<=0则需要被释放
+//同时也实现了Comparable接口，可以按照过期时间进行排序
+public interface Delayed extends Comparable<Delayed> {
+
+    /**
+     * Returns the remaining delay associated with this object, in the
+     * given time unit.
+     *
+     * @param unit the time unit
+     * @return the remaining delay; zero or negative values indicate
+     * that the delay has already elapsed
+     */
+    long getDelay(TimeUnit unit);
+}
+```
+
+##### LinkedBlockingQueue
+
+`LinkedBlockingQueue`阻塞队列大小的配置是可选的，如果我们初始化时指定一个大小，它就是有边界的，如果不指定，它就是无边界的。说是无边界，其实是采用了默认大小为Integer.MAX_VALUE的容量 。
+
+`LinkedBlockingQueue`是通过链表实现的。
+
+和ArrayBlockingQueue一样，LinkedBlockingQueue 也是以先进先出的方式存储数据，最新插入的对象是尾部，最新移出的对象是头部。
+
+```java
+//默认构造器，边界使用Integer.MAX_VALUE
+public LinkedBlockingQueue() {
+    this(Integer.MAX_VALUE);
+}
+```
+
+```java
+//先进先出
+private void enqueue(Node<E> node) {
+    // assert putLock.isHeldByCurrentThread();
+    // assert last.next == null;
+    last = last.next = node;
+}
+```
+
+##### PriorityBlockingQueue
+
+`PriorityBlockingQueue`是一个没有边界的队列，允许插入`null`对象。
+
+所有插入`PriorityBlockingQueue`的对象必须实现 java.lang.Comparable接口，队列优先级的排序规则就是按照对这个接口的实现来定义的。
+
+##### SynchronousQueue
+
+`SynchronousQueue`队列内部并不容纳元素。当一个线程插入一个元素后会被阻塞，除非这个元素被另一个线程消费。
+
+```java
+//当有元素被put进去后，就会中断线程，直到被take出去
+public void put(E e) throws InterruptedException {
+    if (e == null) throw new NullPointerException();
+    if (transferer.transfer(e, false, 0) == null) {
+        Thread.interrupted();
+        throw new InterruptedException();
+    }
+}
+```
+
+**阻塞队列有几种常见的策略：**
+
+1. 不排队，直接提交
+
+将任务直接交给线程处理而不保持它们，可使用`SynchronousQueue`
+如果不存在可用于立即运行任务的线程（即线程池中的线程都在工作），则试图把任务加入缓冲队列将会失败，因此会构造一个新的线程来处理新添加的任务，并将其加入到线程池中（corePoolSize-->maximumPoolSize扩容）
+
+2. 无界队列
+3. 有界队列
+
+
+
+#### ThreadFactory
+
+`ThreadPoolExecutor`默认使用`Executors`静态工厂里`defaultThreadFactory()`。
+
+默认线程命名规则为`"pool-" +poolNumber.getAndIncrement() +"-thread-"`。
+
+```java
+static class DefaultThreadFactory implements ThreadFactory {
+    private static final AtomicInteger poolNumber = new AtomicInteger(1);
+    private final ThreadGroup group;
+    private final AtomicInteger threadNumber = new AtomicInteger(1);
+    private final String namePrefix;
+
+    DefaultThreadFactory() {
+        SecurityManager s = System.getSecurityManager();
+        group = (s != null) ? s.getThreadGroup() :
+                              Thread.currentThread().getThreadGroup();
+        namePrefix = "pool-" +
+                      poolNumber.getAndIncrement() +
+                     "-thread-";
+    }
+
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(group, r,
+                              namePrefix + threadNumber.getAndIncrement(),
+                              0);
+        if (t.isDaemon())
+            t.setDaemon(false);
+        if (t.getPriority() != Thread.NORM_PRIORITY)
+            t.setPriority(Thread.NORM_PRIORITY);
+        return t;
+    }
+}
+```
+
+#### RejectedExecutionHandler
+
+线程池的饱和策略，这里`RejectedExecutionHandler`提供了四种策略：
+
+**AbortPolicy**
+
+直接抛出异常`RejectedExecutionException`，丢弃任务。
+
+```java
+public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+    throw new RejectedExecutionException("Task " + r.toString() +
+                                         " rejected from " +
+                                         e.toString());
+}
+```
+
+**CallerRunsPolicy**
+
+这里不丢弃任务，调用该`execute`的线程本身执行。
+
+```java
+public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+    if (!e.isShutdown()) {
+        r.run();
+    }
+}
+```
+
+**DiscardOldestPolicy**
+
+如果执行程序尚未关闭，则位于工作队列头部的任务将被删除，然后重试执行程序（如果再次失败，则重复此过程）
+
+```java
+public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+    if (!e.isShutdown()) {
+        e.getQueue().poll();
+        e.execute(r);
+    }
+}
+```
+
+**DiscardPolicy**
+
+不做任何处理，直接丢弃任务。
+
+```java
+public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+}
+```
+
+### 启动
+
+```java
+final void runWorker(Worker w) {
+        Thread wt = Thread.currentThread();
+        Runnable task = w.firstTask;
+        w.firstTask = null;
+        w.unlock(); // allow interrupts
+        boolean completedAbruptly = true;
+        try {
+            //当有任务的时候才会启动线程
+            while (task != null || (task = getTask()) != null) {
+                w.lock();
+                // If pool is stopping, ensure thread is interrupted;
+                // if not, ensure thread is not interrupted.  This
+                // requires a recheck in second case to deal with
+                // shutdownNow race while clearing interrupt
+                if ((runStateAtLeast(ctl.get(), STOP) ||
+                     (Thread.interrupted() &&
+                      runStateAtLeast(ctl.get(), STOP))) &&
+                    !wt.isInterrupted())
+                    wt.interrupt();
+                try {
+                    beforeExecute(wt, task);
+                    Throwable thrown = null;
+                    try {
+                        task.run();
+                    } catch (RuntimeException x) {
+                        thrown = x; throw x;
+                    } catch (Error x) {
+                        thrown = x; throw x;
+                    } catch (Throwable x) {
+                        thrown = x; throw new Error(x);
+                    } finally {
+                        afterExecute(task, thrown);
+                    }
+                } finally {
+                    task = null;
+                    w.completedTasks++;
+                    w.unlock();
+                }
+            }
+            completedAbruptly = false;
+        } finally {
+            processWorkerExit(w, completedAbruptly);
+        }
+    }
+```
+
+### 增加任务
+
+```java
+private boolean addWorker(Runnable firstTask, boolean core) {
+        retry:
+        for (;;) {
+            int c = ctl.get();
+            int rs = runStateOf(c);
+
+            // Check if queue empty only if necessary.
+            if (rs >= SHUTDOWN &&
+                ! (rs == SHUTDOWN &&
+                   firstTask == null &&
+                   ! workQueue.isEmpty()))
+                return false;
+
+            for (;;) {
+                int wc = workerCountOf(c);
+                if (wc >= CAPACITY ||
+                    wc >= (core ? corePoolSize : maximumPoolSize))
+                    return false;
+                if (compareAndIncrementWorkerCount(c))
+                    break retry;
+                c = ctl.get();  // Re-read ctl
+                if (runStateOf(c) != rs)
+                    continue retry;
+                // else CAS failed due to workerCount change; retry inner loop
+            }
+        }
+
+        boolean workerStarted = false;
+        boolean workerAdded = false;
+        Worker w = null;
+        try {
+            w = new Worker(firstTask);
+            final Thread t = w.thread;
+            if (t != null) {
+                final ReentrantLock mainLock = this.mainLock;
+                mainLock.lock();
+                try {
+                    // Recheck while holding lock.
+                    // Back out on ThreadFactory failure or if
+                    // shut down before lock acquired.
+                    int rs = runStateOf(ctl.get());
+
+                    if (rs < SHUTDOWN ||
+                        (rs == SHUTDOWN && firstTask == null)) {
+                        if (t.isAlive()) // precheck that t is startable
+                            throw new IllegalThreadStateException();
+                        workers.add(w);
+                        int s = workers.size();
+                        if (s > largestPoolSize)
+                            largestPoolSize = s;
+                        workerAdded = true;
+                    }
+                } finally {
+                    mainLock.unlock();
+                }
+                if (workerAdded) {
+                    t.start();
+                    workerStarted = true;
+                }
+            }
+        } finally {
+            if (! workerStarted)
+                addWorkerFailed(w);
+        }
+        return workerStarted;
+    }
+```
+
+### 获得任务
+
+```java
+private Runnable getTask() {
+        boolean timedOut = false; // Did the last poll() time out?
+
+        for (;;) {
+            int c = ctl.get();
+            int rs = runStateOf(c);
+
+            // Check if queue empty only if necessary.
+            if (rs >= SHUTDOWN && (rs >= STOP || workQueue.isEmpty())) {
+                decrementWorkerCount();
+                return null;
+            }
+
+            int wc = workerCountOf(c);
+
+            // Are workers subject to culling?
+            boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
+
+            if ((wc > maximumPoolSize || (timed && timedOut))
+                && (wc > 1 || workQueue.isEmpty())) {
+                if (compareAndDecrementWorkerCount(c))
+                    return null;
+                continue;
+            }
+
+            try {
+                Runnable r = timed ?
+                    workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :
+                    workQueue.take();
+                if (r != null)
+                    return r;
+                timedOut = true;
+            } catch (InterruptedException retry) {
+                timedOut = false;
+            }
+        }
+    }
+```
+
+
+
+
+
+
+
+
