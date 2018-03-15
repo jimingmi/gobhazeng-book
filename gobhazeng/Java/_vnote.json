@@ -52,19 +52,22 @@
     ],
     "sub_directories": [
         {
+            "name": "源码阅读"
+        },
+        {
+            "name": "Spring"
+        },
+        {
+            "name": "Springboot"
+        },
+        {
             "name": "Android"
         },
         {
             "name": "高并发学习"
         },
         {
-            "name": "Spring"
-        },
-        {
-            "name": "Thread"
-        },
-        {
-            "name": "Springboot"
+            "name": "笔记"
         }
     ],
     "version": "1"
