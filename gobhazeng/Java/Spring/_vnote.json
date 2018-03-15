@@ -11,9 +11,6 @@
         }
     ],
     "sub_directories": [
-        {
-            "name": "SpringBoot"
-        }
     ],
     "version": "1"
 }
