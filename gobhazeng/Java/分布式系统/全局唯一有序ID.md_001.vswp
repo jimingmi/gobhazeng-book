@@ -1,3 +1,4 @@
+vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/Java/分布式系统/全局唯一有序ID.md
 # 全局唯一有序ID
 
 数据在分片时，典型的是分库分表，就有一个全局ID生成的问题。
