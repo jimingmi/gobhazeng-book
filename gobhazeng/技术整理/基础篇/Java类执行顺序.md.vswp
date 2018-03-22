@@ -1,3 +1,4 @@
+vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/技术整理/基础篇/Java类执行顺序.md
 # Java类执行顺序
 
 - 如果父类有静态成员赋值或者静态初始化块，执行静态成员赋值和静态初始化块
