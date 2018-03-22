@@ -1,8 +1,6 @@
-# Spring笔记
+# Spring事务
 
-## Spring事务
-
-### 事务隔离级别
+## 事务隔离级别
 
 隔离级别是指若干个并发的事务之间的隔离程度。
 
@@ -14,7 +12,7 @@
  - `TransactionDefinition.ISOLATION_REPEATABLE_READ`：该隔离级别表示一个事务在整个过程中可以多次重复执行某个查询，并且每次返回的记录都相同。该级别可以防止脏读和不可重复读。
  - `TransactionDefinition.ISOLATION_SERIALIZABLE`：所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。但是这将严重影响程序的性能。通常情况下也不会用到该级别。
 
-### 事务传播行为
+## 事务传播行为
 
 所谓事务的传播行为是指，如果在开始当前事务之前，一个事务上下文已经存在，此时有若干选项可以指定一个事务性方法的执行行为。
 
@@ -29,6 +27,6 @@
  - `TransactionDefinition.PROPAGATION_NESTED`：如果当前存在事务，则创建一个事务作为当前事务的嵌套事务来运行；如果当前没有事务，则该取值等价于`TransactionDefinition.PROPAGATION_REQUIRED`。
 
 
-### 事务超时
+## 事务超时
 
-### 事务只读属性
+## 事务只读属性
