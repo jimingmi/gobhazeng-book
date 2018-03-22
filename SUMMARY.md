@@ -6,5 +6,6 @@
 * [Java基本概念](gobhazeng/技术整理/基础篇/Java基本概念.md)
 * [类和对象](gobhazeng/技术整理/基础篇/类和对象.md)
 * [字符串](gobhazeng/技术整理/基础篇/字符串.md)
-* [对象类型转换｜toString｜比较｜包装类](gobhazeng/技术整理/基础篇/对象类型转换｜toString｜比较｜包装类.md)
+* [包装类](gobhazeng/技术整理/基础篇/包装类.md)
+* [Java类执行顺序](gobhazeng/技术整理/基础篇/Java类执行顺序.md)
 
