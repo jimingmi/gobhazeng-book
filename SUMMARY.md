@@ -1,7 +1,7 @@
 # Summary
 
 * [Introduction](README.md)
-* [第一章  基础篇](第一章    基础部分.md)
+* [第一章  基础篇](第一章   基础篇.md)
 * [面向对象OOP](gobhazeng/技术整理/基础篇/面向对象OOP.md)
 * [Java基本概念](gobhazeng/技术整理/基础篇/Java基本概念.md)
 * [类和对象](gobhazeng/技术整理/基础篇/类和对象.md)
@@ -24,7 +24,7 @@
 * [TCP UDP协议](gobhazeng/技术整理/基础篇/TCP UDP协议.md)
 * [GC机制](gobhazeng/技术整理/基础篇/GC（垃圾回收）机制.md)
 * [内存模型](gobhazeng/技术整理/基础篇/内存模型.md)
-* [第二篇 进阶篇](di-er-pian-jin-jie-pian.md)
+* [第二篇 进阶篇](第二章   进阶篇.md)
 * [JDBC](gobhazeng/技术整理/进阶篇/JDBC.md)
 * [Tomcat JSP](gobhazeng/技术整理/进阶篇/Tomcat JSP.md)
 * [Servlet](gobhazeng/技术整理/进阶篇/Servlet.md)
@@ -32,7 +32,7 @@
 * [Spring MVC](gobhazeng/技术整理/进阶篇/Spring MVC.md)
 * [SSM框架+MySQL](gobhazeng/技术整理/进阶篇/SSM框架+MySQL.md)
 * [SSM框架+Redis二级缓存](gobhazeng/技术整理/进阶篇/SSM框架+Redis二级缓存.md)
-* 第三章 进阶篇
+* [第三章 进阶篇](第三章   提高篇.md)
 * [六种微服务架构的设计模式](gobhazeng/技术整理/提高篇/六种微服务架构的设计模式.md)
 * [Java分布式应用技术架构](gobhazeng/技术整理/提高篇/Java分布式应用技术架构.md)
 * [数据库SQL调优](gobhazeng/技术整理/提高篇/数据库SQL调优.md)
