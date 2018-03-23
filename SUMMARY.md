@@ -32,7 +32,7 @@
 * [Spring MVC](gobhazeng/技术整理/进阶篇/Spring MVC.md)
 * [SSM框架+MySQL](gobhazeng/技术整理/进阶篇/SSM框架+MySQL.md)
 * [SSM框架+Redis二级缓存](gobhazeng/技术整理/进阶篇/SSM框架+Redis二级缓存.md)
-* [第三章 进阶篇](第三章   提高篇.md)
+* [第三章 提高篇](第三章   提高篇.md)
 * [六种微服务架构的设计模式](gobhazeng/技术整理/提高篇/六种微服务架构的设计模式.md)
 * [Java分布式应用技术架构](gobhazeng/技术整理/提高篇/Java分布式应用技术架构.md)
 * [数据库SQL调优](gobhazeng/技术整理/提高篇/数据库SQL调优.md)
