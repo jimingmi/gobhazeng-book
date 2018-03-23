@@ -36,8 +36,8 @@
 * [六种微服务架构的设计模式](gobhazeng/技术整理/提高篇/六种微服务架构的设计模式.md)
 * [Java分布式应用技术架构](gobhazeng/技术整理/提高篇/Java分布式应用技术架构.md)
 * [数据库SQL调优](gobhazeng/技术整理/提高篇/数据库SQL调优.md)
-* [ThreadLocal线程局部对象](gobhazeng/技术整理/提高篇/ThreadLocal.md)
-* [ExecutorService线程池](gobhazeng/技术整理/提高篇/ExecutorService.md)
+* [ThreadLocal线程局部对象](gobhazeng/技术整理/提高篇/ThreadLocal线程局部对象.md)
+* [ExecutorService线程池](gobhazeng/技术整理/提高篇/ExecutorService线程池.md)
 * [全局唯一有序ID](gobhazeng/技术整理/提高篇/全局唯一有序ID.md)
 * [Spring事务](gobhazeng/技术整理/提高篇/Spring事务.md)
 
