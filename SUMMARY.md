@@ -40,4 +40,6 @@
 * [ExecutorService线程池](gobhazeng/技术整理/提高篇/ExecutorService线程池.md)
 * [全局唯一有序ID](gobhazeng/技术整理/提高篇/全局唯一有序ID.md)
 * [Spring事务](gobhazeng/技术整理/提高篇/Spring事务.md)
+* [缓存行与伪共享](gobhazeng/技术整理/提高篇/缓存行与伪共享.md)
+* [RPC远程调用](gobhazeng/技术整理/提高篇/RPC远程调用.md)
 
