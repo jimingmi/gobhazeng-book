@@ -5,11 +5,8 @@
 - HashMap、LinkedHahMap、TreeMap都属于Map
 
 > **Javadoc中对Map的解释如下：**
-
 > An objectthat maps keys to values . Amap cannot contain duplicatekeys; each key can map to at most one value.
-
 > This interface takes the place of the Dictionary class, which was atotally abstract class rather than an interface.
-
 > The Map interface provides three collection views, which allow amap's contents to be viewed as a set of keys, collection of values,or set of key-value mappings.
 
 - Map主要用于存储键(Key)值(Value)对，根据键得到值，因此不允许键重复，但允许值重复。
