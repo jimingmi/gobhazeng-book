@@ -1,4 +1,4 @@
-vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/Java/JVM/JVM调优.md
+vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/Java/JVM/JVM 调优.md
 # JVM调优
 
 ## JVM参数
@@ -17,3 +17,4 @@ vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhaz
 |  -verbose:gc  |  GC信息  |  输出虚拟机中GC的详细情况  |  -  |
 |  -XX:+HeapDumpOnOutOfMemoryError  |  内存堆转储快照  |  让JVM在出现内存溢出异常时Dump出当前的内存堆转储快照  |  -  |
 
+-XX:+PrintGCDetails
