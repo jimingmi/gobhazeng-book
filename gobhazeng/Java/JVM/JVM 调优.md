@@ -13,6 +13,7 @@
 
 |  参数值  |  参数名  |  说明  |  示例  |
 |---|---|---|---|
-|  -verbose:gc  |  GC信息  |  输出虚拟机中GC的详细情况  |  -  |
+|  -verbose:gc  |  GC信息  |  输出虚拟机中GC的情况  |  -  |
+|  -XX:+PrintGCDetails  |  GC详细信息  |  输出虚拟机中GC的详细情况  |  -  |
 |  -XX:+HeapDumpOnOutOfMemoryError  |  内存堆转储快照  |  让JVM在出现内存溢出异常时Dump出当前的内存堆转储快照  |  -  |
 

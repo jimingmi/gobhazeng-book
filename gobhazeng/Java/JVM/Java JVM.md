@@ -1,10 +1,3 @@
-四种引用
-
-JVM中的堆，一般分为：
-
- - 新生代（Young Generation）
- - 老年代（Old Generation）
- - 永久代（Permanent Generation）
 # Java内存区域
 
 **线程共享：**
@@ -20,7 +13,20 @@ JVM中的堆，一般分为：
 
 ## 程序计数器
 
-较小的内存区域，字节码
+较小的内存区域，字节码解释器通过改变这个计数器的值来选取下一条需要执行的字节码指令。
+
+## 虚拟机栈
+
+## 本地方法栈
+
+## 堆
+
+JVM中的堆，一般分为：
+
+ - 新生代（Young Generation）
+ - 老年代（Old Generation）
+
+## 方法区
 
 # JVM异常
 
