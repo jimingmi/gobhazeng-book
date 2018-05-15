@@ -23,4 +23,9 @@ vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhaz
 |  -XX:+PrintGCDetails  |  GC详细信息  |  输出虚拟机中GC的详细情况  |  -  |
 |  -XX:+HeapDumpOnOutOfMemoryError  |  内存堆转储快照  |  让JVM在出现内存溢出异常时Dump出当前的内存堆转储快照  |  -  |
 
+## 动态对象年龄判定
+
+长期存活的对象将进入老年代是可以通过对象年龄来控制的，但虚拟机并不是永远要求对象年龄必须达到`MaxTenuringThreshold`才能晋升到老年代，**如果在Survivor空间中相同年龄所有对象大小的总和大于Survivor空间的一半，年龄大于或等于该年龄的对象就可以直接进入老年代**，无需等到`MaxTenuringThreshold`的年龄。
+
+## 空间分配担保
 

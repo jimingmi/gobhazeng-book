@@ -116,8 +116,46 @@ Java堆可以处于物理上不连续的内存空间，只要逻辑上连续就�
 多数情况，对象在新生代Eden区中分配。当Eden区没有足够空间进行分配时，虚拟机将发起一次Minor GC。
 
 ```java
-[GC[DefNew: 26693K->3392K(30720K), 0.0127576 secs] 26693K->26075K(99008K), 0.0127946 secs] [Times: user=0.00 sys=0.02, real=0.01 secs]
+/**
+ * 对象优先在Eden分配
+ * VM Args: -Xms20m -Xmx20m -Xmn10m -XX:+PrintGCDetails -verbose:gc
+ */
+public static void testAllocation() {
+
+    byte[] btye1 = new byte[3 * 1024 * 1024];
+    byte[] btye2 = new byte[3 * 1024 * 1024];
+    byte[] btye3 = new byte[3 * 1024 * 1024];
+    byte[] btye4 = new byte[3 * 1024 * 1024];// 发生一次Minor GC
+
+}
 ```
+
+**发生Minor GC**
+
+```java
+[GC[DefNew: 7184K->474K(9216K), 0.0036759 secs] 7184K->6618K(19456K), 0.0037104 secs] [Times: user=0.02 sys=0.00, real=0.00 secs]
+
+ def new generation   total 9216K, used 6875K [0x32800000, 0x33200000, 0x33200000)
+  eden space 8192K,  78% used [0x32800000, 0x32e404d8, 0x33000000)
+  from space 1024K,  46% used [0x33100000, 0x33176808, 0x33200000)
+  to   space 1024K,   0% used [0x33000000, 0x33000000, 0x33100000)
+ tenured generation   total 10240K, used 6144K [0x33200000, 0x33c00000, 0x33c00000)
+   the space 10240K,  60% used [0x33200000, 0x33800020, 0x33800200, 0x33c00000)
+ compacting perm gen  total 12288K, used 203K [0x33c00000, 0x34800000, 0x37c00000)
+   the space 12288K,   1% used [0x33c00000, 0x33c32ee0, 0x33c33000, 0x34800000)
+    ro space 10240K,  44% used [0x37c00000, 0x3807d3a8, 0x3807d400, 0x38600000)
+    rw space 12288K,  52% used [0x38600000, 0x38c49a18, 0x38c49c00, 0x39200000)
+```
+
+**相关参数：**
+
+|  参数值  |  参数名  |  说明  |  示例  |
+|---|---|---|---|
+|  -Xms  |  最小堆内存  |  设置堆容量的最小值  |  -Xms20m  |
+|  -Xmx  |  最大堆内存  |  设置堆容量的最大值  |  -Xmx20m  |
+|  -XX:NewSize  |  新生代初始大小  |  设置新生代的初始大小  |  -XX:NewSize2m  |
+|  -XX:MaxNewSize  |  新生代的最大值  |  设置新生代的最大值  |  -XX:MaxNewSize5m  |
+|  -Xmn  |  新生代的大小  |  设置新生代的大小，相当于设置了相同的-XX:NewSize和-XX:MaxNewSize  |  -Xmn5m  |
 
 ## 大对象直接进入老年代
 
@@ -128,23 +166,28 @@ Java堆可以处于物理上不连续的内存空间，只要逻辑上连续就�
 ```java
 /**
  * 大对象直接进入老年代
- * VM Args: -Xms20m -Xmx20m -Xmn10m -XX:PretenureSizeThreshold=3145728 -XX:+PrintGCDetails
+ * VM Args: -Xms20m -Xmx20m -Xmn10m -XX:PretenureSizeThreshold=3145728 -XX:+PrintGCDetails -verbose:gc
  */
 public static void testPretenureSizeThreshold() {
 
     byte[] btye = new byte[4 * 1024 * 1024];
 
 }
+```
 
-// 不设置-XX:PretenureSizeThreshold
+**不设置-XX:PretenureSizeThreshold**
+```java
  def new generation   total 9216K, used 5136K [0x32800000, 0x33200000, 0x33200000)
   eden space 8192K,  62% used [0x32800000, 0x32d042d0, 0x33000000)
   from space 1024K,   0% used [0x33000000, 0x33000000, 0x33100000)
   to   space 1024K,   0% used [0x33100000, 0x33100000, 0x33200000)
  tenured generation   total 10240K, used 0K [0x33200000, 0x33c00000, 0x33c00000)
    the space 10240K,   0% used [0x33200000, 0x33200000, 0x33200200, 0x33c00000)
+```
 
-// 设置-XX:PretenureSizeThreshold
+**设置-XX:PretenureSizeThreshold**
+
+```java
  def new generation   total 9216K, used 1040K [0x32800000, 0x33200000, 0x33200000)
   eden space 8192K,  12% used [0x32800000, 0x329042c0, 0x33000000)
   from space 1024K,   0% used [0x33000000, 0x33000000, 0x33100000)
@@ -162,6 +205,69 @@ public static void testPretenureSizeThreshold() {
 |  -XX:PretenureSizeThreshold  |  直接分配老年代对象的大小阈值  |  只对Serial和ParNew有效  |  -XX:PretenureSizeThreshold=3145728  |
 
 ## 长期存活的对象将进入老年代
+
+对象优先在新生代的Eden中分配，那就存在Eden中的对象何时进入老年代的问题。JVM给meige每个对象定义了一个对象年龄（Age）计数器。如果对象在Eden出生并经过第一次Minor GC后仍然存活，并且能被Survivor容纳的话，将被移动到Survivor空间中，并且对象年龄设为1。
+
+对象在Survivor区中每经过一次Minor GC，对象年龄就会增加1，当对象年龄达到一定数值后（默认为15），就将会被晋升到老年代中。关于晋升的对象年龄阈值，可以通过参数`-XX:MaxTenuringThreshold`设置。
+
+```java
+/**
+ * 长期存活的对象将进入老年代
+ * VM Args: -Xms20m -Xmx20m -Xmn10m -XX:MaxTenuringThreshold=1 -XX:+PrintGCDetails -verbose:gc
+ * -XX:+PrintGCDetails -verbose:gc
+ */
+public static void testTenuringThreshold() {
+
+    byte[] btye1 = new byte[10 * 1024];
+    byte[] btye2 = new byte[4 * 1024 * 1024];
+    byte[] btye3 = new byte[4 * 1024 * 1024];//第一次Minor GC
+    btye3 = null;
+    btye3 = new byte[4 * 1024 * 1024];//第二次Minor GC
+
+}
+```
+
+**`-XX:MaxTenuringThreshold=1` 第二次Minor GC后，Survivor区的空间变为0**
+
+```java
+[GC[DefNew: 5136K->484K(9216K), 0.0029680 secs] 5136K->4580K(19456K), 0.0030075 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+[GC[DefNew: 4664K->0K(9216K), 0.0009321 secs] 8760K->4579K(19456K), 0.0009561 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+Heap
+ def new generation   total 9216K, used 4260K [0x32800000, 0x33200000, 0x33200000)
+  eden space 8192K,  52% used [0x32800000, 0x32c28fd8, 0x33000000)
+  from space 1024K,   0% used [0x33000000, 0x33000088, 0x33100000)
+  to   space 1024K,   0% used [0x33100000, 0x33100000, 0x33200000)
+ tenured generation   total 10240K, used 4579K [0x33200000, 0x33c00000, 0x33c00000)
+   the space 10240K,  44% used [0x33200000, 0x33678db8, 0x33678e00, 0x33c00000)
+ compacting perm gen  total 12288K, used 203K [0x33c00000, 0x34800000, 0x37c00000)
+   the space 12288K,   1% used [0x33c00000, 0x33c32fa8, 0x33c33000, 0x34800000)
+    ro space 10240K,  44% used [0x37c00000, 0x3807d3a8, 0x3807d400, 0x38600000)
+    rw space 12288K,  52% used [0x38600000, 0x38c49a18, 0x38c49c00, 0x39200000)
+```
+
+**`-XX:MaxTenuringThreshold=15` 第二次Minor GC后，Survivor区的空间仍然有空间占用**
+
+```java
+[GC[DefNew: 4972K->484K(9216K), 0.0028113 secs] 4972K->4580K(19456K), 0.0028464 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+[GC[DefNew: 4744K->483K(9216K), 0.0007607 secs] 8840K->4579K(19456K), 0.0007831 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+Heap
+ def new generation   total 9216K, used 4743K [0x32800000, 0x33200000, 0x33200000)
+  eden space 8192K,  52% used [0x32800000, 0x32c28fd8, 0x33000000)
+  from space 1024K,  47% used [0x33000000, 0x33078e30, 0x33100000)
+  to   space 1024K,   0% used [0x33100000, 0x33100000, 0x33200000)
+ tenured generation   total 10240K, used 4096K [0x33200000, 0x33c00000, 0x33c00000)
+   the space 10240K,  40% used [0x33200000, 0x33600010, 0x33600200, 0x33c00000)
+ compacting perm gen  total 12288K, used 203K [0x33c00000, 0x34800000, 0x37c00000)
+   the space 12288K,   1% used [0x33c00000, 0x33c32fa8, 0x33c33000, 0x34800000)
+    ro space 10240K,  44% used [0x37c00000, 0x3807d3a8, 0x3807d400, 0x38600000)
+    rw space 12288K,  52% used [0x38600000, 0x38c49a18, 0x38c49c00, 0x39200000)
+```
+
+**相关参数：**
+
+|  参数值  |  参数名  |  说明  |  示例  |
+|---|---|---|---|
+|  -XX:MaxTenuringThreshold  |  新生代Survivor区中对象晋升到老年代的duixiangnian对象年龄阈值  |  不设置此值默认为15  |  -XX:MaxTenuringThreshold=1  |
 
 ## 动态对象年龄判定
 
