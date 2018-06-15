@@ -37,6 +37,9 @@
         },
         {
             "name": "JVM"
+        },
+        {
+            "name": "Storm"
         }
     ],
     "version": "1"
