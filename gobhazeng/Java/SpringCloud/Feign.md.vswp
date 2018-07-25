@@ -1,0 +1,76 @@
+vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/Java/SpringCloud/Feign.md
+# openfeign
+
+**关键类**
+
+1. Client(接口) - Feign(抽象类) - ReflectiveFeign(实现类)
+2. RequestTemplate
+3. InvocationHandlerFactory(接口) - SynchronousMethodHandler(实现类)
+4. Decoder与Encoder
+
+**调用接口**
+
+```conf
+public interface LoginTest {
+
+    static Logger logger = LoggerFactory.getLogger(LoginTest.class);
+
+    /**
+     * Json Request
+     *
+     * @param userTel
+     * @param userPasswd
+     * @return
+     */
+    @RequestLine("POST /app/acco/toLogin")
+    @Headers({ "Content-Type: application/json" })
+    JsonResultBean login(@Param("userTel") String userTel, @Param("userPasswd") String userPasswd);
+
+}
+```
+
+**测试类**
+
+```conf
+public class Test {
+
+    public static Logger logger = LoggerFactory.getLogger(Test.class);
+
+    public static void main(String[] args) {
+        LoginTest loginTest = Feign.builder().encoder(new GsonEncoder()).decoder(new GsonDecoder()).target(LoginTest.class,"http://127.0.0.1:8001");
+        JsonResultBean resultBean = loginTest.login("18000000000", "123456a");
+        logger.info(JSONObject.toJSONString(resultBean));
+    }
+
+}
+```
+
+## 调用过程
+
+反射实例化`ReflectiveFeign`，使用JDK动态代理，最终获得的是`HardCodedTarget`
+
+调用`ReflectiveFeign.invoke`，最终执行的是`FeignInvocationHandler.invoke`
+
+从`Map<Method, MethodHandler> dispatch`获取对应的`MethodHandler`，这里是`SynchronousMethodHandler`
+
+调用`SynchronousMethodHandler`的`invoke`，最终其实是通过参数（http请求参数）实例化`RequestTemplate`
+
+```conf
+//RequestTemplate 序列化的结构
+POST /app/acco/toLogin HTTP/1.1
+Content-Type: application/json
+Content-Length: 57
+
+{
+  "userTel": "18000000000",
+  "userPasswd": "123456a"
+}
+```
+
+之后`SynchronousMethodHandler`直接调用`client`发送HTTP请求，这里由于没有指定Client的类型，默认使用初始化的指定的`HttpURLConnection`进行请求
+
+当请求出现异常时（连接失败），`SynchronousMethodHandler`会进行重试，当`attempt`计数超过`maxAttempts（5次）`后结束请求，返回异常
+
+# springboot+feign
+
+# springcloud+feign

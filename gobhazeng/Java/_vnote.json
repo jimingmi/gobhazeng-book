@@ -40,6 +40,9 @@
         },
         {
             "name": "Storm"
+        },
+        {
+            "name": "SpringCloud"
         }
     ],
     "version": "1"
