@@ -1,0 +1,16 @@
+vnote_backup_file_826537664 C:/Users/admin/Desktop/synchro/gobhazeng-book/gobhazeng/Java/分布式系统/分布式概念.md
+# 分布式概念
+
+原子性 
+CAP
+BASE
+ACID
+最终一致性
+最大努力交付
+五分钟原则
+分布式事务补偿机制
+两阶段提交协议
+三阶段提交协议
+
+Paxos
+Raft
