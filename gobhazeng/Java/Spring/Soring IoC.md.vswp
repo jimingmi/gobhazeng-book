@@ -1,0 +1,16 @@
+vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/Java/Spring/Soring IoC.md
+# BeanFactory
+
+## DefaultListableBeanFactory
+
+DefaultListableBeanFactory 默认的功能完整的IoC容器
+
+```java
+public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory
+		implements ConfigurableListableBeanFactory, BeanDefinitionRegistry, Serializable {}
+```
+
+ - `AbstractAutowireCapableBeanFactory` 实现属性的自动绑定功能
+ - `ConfigurableListableBeanFactory` 提供了对Bean定义的分析和修改的便利方法，同时也提供了对单例的预实例化。
+ - `BeanDefinitionRegistry` 提供了BeanDefinition的管理
+

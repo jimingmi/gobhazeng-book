@@ -131,5 +131,3 @@ private void checkTransactionTimeout(boolean deadlineReached) throws Transaction
 ```
 
 ## 事务只读属性
-
-# 
