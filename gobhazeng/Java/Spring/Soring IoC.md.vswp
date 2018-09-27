@@ -1,7 +1,12 @@
 vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/Java/Spring/Soring IoC.md
 # BeanFactory
 
-## 
+## 简述
+
+ - `getBean` ： 获取IoC容器中管理的Bean
+ - `containsBean` ： 获取IoC容器中管理的Bean
+
+
 
 ## DefaultListableBeanFactory
 
