@@ -1,6 +1,11 @@
 # BeanFactory
 
-## 
+## 简述
+
+ - `getBean` ： 获取IoC容器中管理的Bean
+ - `containsBean` ： 获取IoC容器中管理的Bean
+
+
 
 ## DefaultListableBeanFactory
 
