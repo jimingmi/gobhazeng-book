@@ -1,0 +1,168 @@
+vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/Java/源码阅读/并发辅助类.md
+# CountDownLatch
+
+```java
+import java.util.concurrent.CountDownLatch;
+
+/**
+ * CountDownLatch 测试
+ *
+ * @author gobhazeng
+ * @date 2018-11-21 下午1:30:42
+ */
+public class CountDownLatchTest {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        final CountDownLatch countDownLatch = new CountDownLatch(2);
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    System.out.println("子线程" + Thread.currentThread().getName() + "正在运行");
+                    Thread.sleep(3000);
+                    System.out.println("子线程" + Thread.currentThread().getName() + "执行结束");
+                    // count计数减1
+                    countDownLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    System.out.println("子线程" + Thread.currentThread().getName() + "正在运行");
+                    Thread.sleep(3000);
+                    System.out.println("子线程" + Thread.currentThread().getName() + "执行结束");
+                    // count计数减1
+                    countDownLatch.countDown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        System.out.println("子线程任务正在执行");
+
+        do {
+            System.out.println("count:" + countDownLatch.getCount());
+            Thread.sleep(100);
+        } while (countDownLatch.getCount() > 0);
+
+        // 调用await()的线程将被挂起 直到count值为0时才继续执行
+        countDownLatch.await();
+        System.out.println("子线程任务执行结束");
+
+    }
+
+}
+```
+
+# CyclicBarrier
+
+```java
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+/**
+ * CyclicBarrier测试1
+ *
+ * @author gobhazeng
+ * @date 2018-11-21 下午1:27:50
+ */
+public class CyclicBarrierTest1 {
+
+    public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
+        int N = 5;
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(N);
+        for (int i = 0; i < N; i++) {
+            new Write(cyclicBarrier).start();
+        }
+
+    }
+
+    static class Write extends Thread {
+
+        private CyclicBarrier cyclicBarrier;
+
+        public Write(CyclicBarrier cyclicBarrier) {
+            this.cyclicBarrier = cyclicBarrier;
+        }
+
+        @Override
+        public void run() {
+            try {
+                System.out.println("线程" + Thread.currentThread().getName() + "正在写入数据...");
+                Thread.sleep(3000);
+                System.out.println("线程" + Thread.currentThread().getName() + "数据写入完毕...");
+                // 挂起当前线程，直至所有线程都到达barrier状态再同时执行后续任务
+                cyclicBarrier.await();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + " 所有线程写入完毕，继续处理其他任务...");
+
+        }
+    }
+
+}
+```
+
+```java
+/**
+ * CyclicBarrier 测试2
+ *
+ * @author gobhazeng
+ * @date 2018-11-21 下午1:42:44
+ */
+public class CyclicBarrierTest2 {
+
+    public static void main(String[] args) {
+        int N = 5;
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(N, new Runnable() {
+
+            @Override
+            public void run() {
+                // 所有线程都到达barrier状态后，使用其中最后进入barrier状态的线程执行
+                System.out.println("任务处理完了 " + Thread.currentThread().getName() + "处理其他事情");
+
+            }
+        });
+        for (int i = 0; i < N; i++) {
+            new Write(cyclicBarrier).start();
+        }
+
+    }
+
+    static class Write extends Thread {
+
+        private CyclicBarrier cyclicBarrier;
+
+        public Write(CyclicBarrier cyclicBarrier) {
+            this.cyclicBarrier = cyclicBarrier;
+        }
+
+        @Override
+        public void run() {
+            try {
+                System.out.println("线程" + Thread.currentThread().getName() + "正在写入数据...");
+                Thread.sleep(3000);
+                System.out.println("线程" + Thread.currentThread().getName() + "数据写入完毕...");
+                // 挂起当前线程，直至所有线程都到达barrier状态再同时执行后续任务
+                cyclicBarrier.await();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName() + " 所有线程写入完毕，继续处理其他任务...");
+
+        }
+    }
+
+}
+```
