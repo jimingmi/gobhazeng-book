@@ -28,3 +28,198 @@
  - **component**：它的值是一个组件。在path匹配成功之后会绘制这个组件。
  - **exact**：这个属性用来指明这个路由是不是排他的匹配。
  - **strict**： 这个属性指明路径只匹配以斜线结尾的路径。
+
+# 实例
+
+## 安装
+
+`npm install react-router-dom --save-dev`
+
+## 基本操作
+
+建立`hohome.js`和`detail.js`
+
+> home.js
+
+```js
+import React from "react";
+
+export default class Home extends React.Component {
+  render() {
+    return (
+      <div>
+        <a href="#/detail">去detail</a>
+      </div>
+    );
+  }
+}
+```
+
+> detail.js
+
+```js
+import React from "react";
+
+export default class Detail extends React.Component {
+  render() {
+    return (
+      <div>
+        <a href="#/">回到home</a>
+      </div>
+    );
+  }
+}
+```
+
+建立一个路由组件`Router.js`
+
+```js
+import React from "react";
+import { HashRouter, Route, Switch } from "react-router-dom";
+import Home from "../container/home";
+import Detail from "../container/detail";
+
+const BasicRoute = () => (
+  <HashRouter>
+    <Switch>
+      <Route exact path="/" component={Home} />
+      <Route exact path="/detail" component={Detail} />
+    </Switch>
+  </HashRouter>
+);
+
+export default BasicRoute;
+```
+
+编写入口文件`indexjs`
+
+```js
+import React from "react";
+import ReactDOM from "react-dom";
+import Router from "./container/Router";
+
+ReactDOM.render(<Router />, document.getElementById("root"));
+```
+
+其中的跳转是通过标签实现的。
+
+## 通过函数跳转
+
+修改`Router.js`中的代码
+
+```js
+...
+import { HashRouter, Route, Switch, BrowserRouter } from "react-router-dom";
+...
+<HashRouter history={BrowserRouter}>
+...
+```
+
+修改`home.js`中的代码
+
+```js
+import React from "react";
+
+export default class Home extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div>
+        <a href="#/detail">去detail</a>
+        <br />
+        <button onClick={() => this.props.history.push("detail")}>
+          通过函数跳转
+        </button>
+      </div>
+    );
+  }
+}
+```
+
+`onClick()`事件通过`this.props.history.push`这个函数跳转到detail页面。在路由组件中加入的代码就是将history这个对象注册到组件的props中去，然后就可以在子组件中通过props调用history的push方法跳转页面。
+
+## URL传参
+
+修改`Router.js`
+
+```js
+...
+<Route exact path="/detail/:id" component={Detail}/>
+...
+```
+
+修改`detail.js`，使用`this.props.match.params`接收URL传过来的参数
+
+```js
+...
+componentDidMount() {
+    console.log(this.props.match.params);
+}
+...
+```
+
+在地址栏输入`http://localhost:3000/#/detail/1`，打开控制台。
+
+## 隐式传参
+
+修改`home.js`
+
+```js
+import React from "react";
+
+export default class Home extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div>
+        <a href="#/detail/1">去detail</a>
+        <br />
+        <button onClick={() => this.props.history.push("detail")}>
+          通过函数跳转
+        </button>
+        <button
+          onClick={() =>
+            this.props.history.push({
+              pathname: "/detail",
+              state: {
+                id: 3
+              }
+            })
+          }
+        >
+          通过函数隐式传参跳转
+        </button>
+      </div>
+    );
+  }
+}
+```
+
+修改`detail.js`
+
+```js
+componentDidMount() {
+    //console.log(this.props.match.params);
+    console.log(this.props.history.location.state);
+}
+```
+
+## 其他函数
+
+**replace：**
+
+有些场景下，重复使用push或a标签跳转会产生死循环，为了避免这种情况出现，react-router-dom提供了replace。在可能会出现死循环的地方使用replace来跳转：
+
+`this.props.history.replace('/detail');`
+
+**goBack：**
+
+场景中需要返回上级页面的时候使用：
+
+`this.props.history.goBack();`
