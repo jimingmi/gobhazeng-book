@@ -1,0 +1,14 @@
+vnote_backup_file_826537664 C:/Users/Admin/Desktop/synchro/gobhazeng-book/gobhazeng/JavaScript/React/常用配置.md
+# 常用配置
+
+##  webpack环境
+
+`npm install react -s -d react-dom -s babel-core -s -d babel-loader@7.1.5 -s -d css-loader -s -d react-hot-loader -s -d webpack-dev-server -s -d react-router -s -d webpack -s -d webpack-cli -s -d babel-preset-react -s -d babel-preset-es2015 -s -d babel-preset-stage-0 -s -d webpack-dev-middleware -s -d`
+
+## 切换至淘宝镜像
+
+`npm config set registry http://registry.npm.taobao.org`
+
+## 查看当前镜像源
+
+`npm get registry`
