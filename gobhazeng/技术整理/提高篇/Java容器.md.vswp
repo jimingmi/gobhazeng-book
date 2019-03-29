@@ -324,9 +324,215 @@ public class LinkedList<E>
     implements List<E>, Deque<E>, Cloneable, java.io.Serializable
 ```
 
+### 2.1.1 数据结构
+
+![](_v_images/_1553826117_4370.png)
+
+说明：LinkedList底层使用的双向链表结构，有一个头结点和一个尾结点，双向链表意味着我们可以从头开始正向遍历，或者是从尾开始逆向遍历，并且可以针对头部和尾部进行相应的操作。
+
 ### 2.1.1 构造函数
 
+```java
+/**
+ *  构造一个空列表。
+ */
+public LinkedList() {
+}
 
+/**
+ *  构造一个包含指定 collection 中的元素的列表，这些元素按其 collection 的迭代器返回的顺序排列。
+ */
+public LinkedList(Collection<? extends E> c) {
+    // 调用无参构造函数
+    this();
+    // 添加集合中所有的元素
+    addAll(c);
+}
+```
+
+### 2.1.2 成员变量
+
+LinkedList中提供了三个基本属性size、first、last。
+
+ - **size**：LinkedList的大小
+ - **first**：表示链表的头结点
+ - **last**：表示链表的尾节点
+ - **Node**：为节点对象
+
+```java
+// 实际元素个数
+transient int size = 0;
+// 头结点
+transient Node<E> first;
+// 尾结点
+transient Node<E> last;
+```
+
+### 2.1.3 内部类
+
+内部类Node就是实际的结点，用于存放实际元素的地方。
+
+```java
+private static class Node<E> {
+    E item; // 数据域
+    Node<E> next; // 后继
+    Node<E> prev; // 前驱
+
+    // 构造函数，赋值前驱后继
+    Node(Node<E> prev, E element, Node<E> next) {
+        this.item = element;
+        this.next = next;
+        this.prev = prev;
+    }
+}
+```
+
+## 2.2 源码分析
+
+### 2.2.1 增加
+
+**add(E e)**：向LinkedList中添加一个元素，并且添加到链表尾部。
+
+```java
+public boolean add(E e) {
+    linkLast(e);
+    return true;
+}
+
+void linkLast(E e) {
+    // 保存尾结点，l为final类型，不可更改
+    final Node<E> l = last;
+    // 新生成结点的前驱为l,后继为null
+    final Node<E> newNode = new Node<>(l, e, null);
+    // 重新赋值尾结点
+    last = newNode;
+    if (l == null) // 尾结点为空
+        first = newNode; // 赋值头结点
+    else // 尾结点不为空
+        l.next = newNode; // 尾结点的后继为新生成的结点
+    // 大小加1
+    size++;
+    // 结构性修改加1
+    modCount++;
+}
+```
+
+**addAll(Collection<? extends E> c)**：添加一个集合
+
+参数中的index表示在索引下标为index的结点（实际上是第index + 1个结点）的前面插入。
+
+```java
+public boolean addAll(Collection<? extends E> c) {
+    return addAll(size, c);
+}
+
+public boolean addAll(int index, Collection<? extends E> c) {
+    // 检查插入的的位置是否合法
+    checkPositionIndex(index);
+    // 将集合转化为数组
+    Object[] a = c.toArray();
+    // 保存集合大小
+    int numNew = a.length;
+    if (numNew == 0) // 集合为空，直接返回
+        return false;
+
+    Node<E> pred, succ; // 前驱，后继
+    if (index == size) { // 如果插入位置为链表末尾，则后继为null，前驱为尾结点
+        succ = null;
+        pred = last;
+    } else { // 插入位置为其他某个位置
+        succ = node(index); // 寻找到该结点
+        pred = succ.prev; // 保存该结点的前驱
+    }
+
+    for (Object o : a) { // 遍历数组
+        @SuppressWarnings("unchecked") E e = (E) o; // 向下转型
+        // 生成新结点
+        Node<E> newNode = new Node<>(pred, e, null);
+        if (pred == null) // 表示在第一个元素之前插入(索引为0的结点)
+            first = newNode;
+        else
+            pred.next = newNode;
+        pred = newNode;
+    }
+
+    if (succ == null) { // 表示在最后一个元素之后插入
+        last = pred;
+    } else {
+        pred.next = succ;
+        succ.prev = pred;
+    }
+    // 修改实际元素个数
+    size += numNew;
+    // 结构性修改加1
+    modCount++;
+    return true;
+}
+```
+
+其中，addAll函数和get函数会调用到node函数，此函数是根据索引下标找到该结点并返回，在根据索引查找结点时，会有一个小优化，结点在前半段则从头开始遍历，在后半段则从尾开始遍历，这样就保证了只需要遍历最多一半结点就可以找到指定索引的结点。
+
+```java
+Node<E> node(int index) {
+    // 判断插入的位置在链表前半段或者是后半段
+    if (index < (size >> 1)) { // 插入位置在前半段
+        Node<E> x = first; 
+        for (int i = 0; i < index; i++) // 从头结点开始正向遍历
+            x = x.next;
+        return x; // 返回该结点
+    } else { // 插入位置在后半段
+        Node<E> x = last; 
+        for (int i = size - 1; i > index; i--) // 从尾结点开始反向遍历
+            x = x.prev;
+        return x; // 返回该结点
+    }
+}
+```
+
+### 2.2.2 移除
+
+```java
+public E remove(int index) {
+    checkElementIndex(index);
+    return unlink(node(index));
+}
+
+private void checkElementIndex(int index) {
+    if (!isElementIndex(index))
+        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+
+E unlink(Node<E> x) {
+    // 保存结点的元素
+    final E element = x.item;
+    // 保存x的后继
+    final Node<E> next = x.next;
+    // 保存x的前驱
+    final Node<E> prev = x.prev;
+
+    if (prev == null) { // 前驱为空，表示删除的结点为头结点
+        first = next; // 重新赋值头结点
+    } else { // 删除的结点不为头结点
+        prev.next = next; // 赋值前驱结点的后继
+        x.prev = null; // 结点的前驱为空，切断结点的前驱指针
+    }
+
+    if (next == null) { // 后继为空，表示删除的结点为尾结点
+        last = prev; // 重新赋值尾结点
+    } else { // 删除的结点不为尾结点
+        next.prev = prev; // 赋值后继结点的前驱
+        x.next = null; // 结点的后继为空，切断结点的后继指针
+    }
+
+    x.item = null; // 结点元素赋值为空
+    // 减少元素实际个数
+    size--;
+    // 结构性修改加1
+    modCount++;
+    // 返回结点的旧元素
+    return element;
+}
+```
 
 # 3. Vector
 
@@ -505,3 +711,16 @@ while (enu.hasMoreElements()) {
     value = (Integer)enu.nextElement();
 }
 ```
+
+# 4. HashMap
+
+**写在前面：**
+
+快速过一遍数据结构！
+
+ - **数组**：采用一段连续的存储单元来存储数据。对于指定下标的查找，时间复杂度为O(1)；通过给定值进行查找，需要遍历数组，逐一比对给定关键字和数组元素，时间复杂度为O(n)，当然，对于有序数组，则可采用二分查找，插值查找，斐波那契查找等方式，可将查找复杂度提高为O(logn)；对于一般的插入删除操作，涉及到数组元素的移动，其平均复杂度也为O(n)。对应到集合实现，代表就是ArrayList。
+ - **线性链表**：对于链表的新增，删除等操作（在找到指定操作位置后），仅需处理结点间的引用即可，时间复杂度为O(1)，而查找操作需要遍历链表逐一进行比对，复杂度为O(n)。对应的集合类是LinkedList。
+ - **二叉树**：对一棵相对平衡的有序二叉树，对其进行插入，查找，删除等操作，平均复杂度均为O(logn)。对应的集合类有TreeSet和TreeMap。
+ - **哈希表**：相比上述几种数据结构，在哈希表中进行添加，删除，查找等操作，性能十分之高，不考虑哈希冲突的情况下，仅需一次定位即可完成，时间复杂度为O(1)。对应的集合类就是HashMap。
+
+## 3.1 概述
