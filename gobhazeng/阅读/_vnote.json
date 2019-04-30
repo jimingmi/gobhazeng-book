@@ -5,6 +5,9 @@
     "sub_directories": [
         {
             "name": "Effective Java"
+        },
+        {
+            "name": "Java并发编程实战"
         }
     ],
     "version": "1"
