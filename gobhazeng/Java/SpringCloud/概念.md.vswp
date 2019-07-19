@@ -1,0 +1,13 @@
+vnote_backup_file_826537664 D:/synchro/gobhazeng-book/gobhazeng/Java/SpringCloud/概念.md
+# DiscoveryClient
+
+# LoadBalancerClient
+
+# Sentinel
+
+在完成了上面的整合之后，对于接口流控规则的修改就存在两个地方了：Sentinel控制台、Nacos控制台。
+
+这个时候，需要注意当前版本的Sentinel控制台不具备同步修改Nacos配置的能力，而Nacos由于可以通过在客户端中使用Listener来实现自动更新。所以，在整合了Nacos做规则存储之后，需要知道在下面两个地方修改存在不同的效果：
+
+- Sentinel控制台中修改规则：仅存在于服务的内存中，不会修改Nacos中的配置值，重启后恢复原来的值。
+- Nacos控制台中修改规则：服务的内存中规则会更新，Nacos中持久化规则也会更新，重启后依然保持。
