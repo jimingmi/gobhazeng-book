@@ -1,0 +1,45 @@
+vnote_backup_file_826537664 D:/synchro/gobhazeng-book/gobhazeng/Java/SpringCloud/Netflix.md
+# DiscoveryClient
+
+# LoadBalancerClient
+
+# Spring Cloud Stream
+
+## 概念
+
+消息驱动的微服务：微服务是松耦合的架构，而基于消息驱动模式可以实现业务高度解耦。
+
+Spring Cloud Stream的意义：以往构建消息驱动的微服务，应用中均需代码实现具体消息中间件的通信细节，此时如果再更换一个新的消息中间件，需要新增通信代码，会比较繁琐，Spring Cloud Stream主要就是为了简化这个流程。
+
+![](_v_images/20190724105306470_18305.png)
+
+- Inputs 接收消息的通道
+- Output 发送消息的通道
+- Binder 抽象的消息队列中间件，应用通过在Spring Cloud Stream中所注入的
+
+通过Spring Cloud Stream可以对应用层隐藏具体的消息通讯实现，应用层只需要将相应业务绑定到Binder上即可实现消息通信，提高开发效率。
+
+## 特性
+
+### Publish-Subscribe（发布-订阅）
+
+相对于点对点队列实现的消息通信来说，Spring Cloud Stream采用的发布-订阅模式可以有效的降低消息生产者与消费者之间的耦合。生产者把消息通过某个 topic 广播出去（Spring Cloud Stream 中的 destinations）。其他的微服务，通过订阅特定 topic 来获取广播出来的消息来触发业务的进行。当我们需要对同一类消息增加一种处理方式时，只需要增加一个应用程序并将输入通道绑定到既有的Topic中就可以实现功能的扩展，而不需要改变原来已经实现的任何内容。
+
+### Consumer Groups（消费组）
+
+默认情况下，绑定的消费者都属于独立的消费组，当分布式多实例部署的时候会出现重复消费的情况，此时需要使用消息组。将同属应用指定一个组名，这样这个应用的多个实例在接收到消息的时候，只会有一个成员真正的收到消息并进行处理。
+
+未使用消费组
+
+![未使用消费组](_v_images/20190724100458100_13593.png)
+
+使用消费组
+
+![使用消费组](_v_images/20190724100642225_236.png)
+
+### Durability（持久化）
+
+Spring Cloud Stream 可以动态的选择一个消息队列是持久化，还是 present。
+
+## 消息分区
+
