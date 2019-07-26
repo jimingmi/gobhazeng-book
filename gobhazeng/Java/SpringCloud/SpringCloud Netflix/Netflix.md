@@ -1,13 +1,12 @@
-vnote_backup_file_826537664 D:/synchro/gobhazeng-book/gobhazeng/Java/SpringCloud/Netflix.md
-# DiscoveryClient
-
-# LoadBalancerClient
+# 服务架构的演进
 
 # SpringCloud
 
 Spring Cloud是一个基于Spring Boot实现的云应用开发工具，它为基于JVM的云应用开发中涉及的配置管理、服务发现、断路器、智能路由、微代理、控制总线、全局锁、决策竞选、分布式会话和集群状态管理等操作提供了一种简单的开发方式。
 
 Spring Cloud包含了多个子项目（针对分布式系统中涉及的多个不同开源产品），比如：Spring Cloud Config、Spring Cloud Netflix、Spring Cloud CloudFoundry、Spring Cloud AWS、Spring Cloud Security、Spring Cloud Commons、Spring Cloud Zookeeper、Spring Cloud CLI等项目。
+
+![](_v_images/20190726163436180_18248.png)
 
 ## 微服务架构
 
@@ -18,6 +17,12 @@ Spring Cloud包含了多个子项目（针对分布式系统中涉及的多个�
 SpringCloud Netflix是SpringCloud的一个具体实现，其提供的模块包括：服务发现（Eureka），断路器（Hystrix），智能路由（Zuul），客户端负载均衡（Ribbon）等。
 
 # Eureka（服务治理）
+
+![](_v_images/20190726164528791_2506.png)
+
+ - 服务注册中心（Eureka提供服务端，提供服务注册与发现）
+ - 服务提供者（将自身服务注册到Eureka，以供其他应用发现并消费）
+ - 服务消费者（从服务注册中心获取服务列表，从而实现服务消费，Ribbon、Feign提供）
 
 依靠SpringCloud对服务治理做了一层抽象接口，Spring Cloud应用中可以支持多种不同的服务治理框架，而且非常方便的进行切换，并且不影响任何其他的服务注册、服务发现、服务调用等逻辑。
 
@@ -42,14 +47,23 @@ public class Application {
 
 **配置**
 
+`application.yml`
+
 ```conf
-spring.application.name=app-register-server
-server.port=1001
+spring:
+  application:
+    name: app-register-server
+
+server:
+  port: 1001
 
 #非高可用配置
-eureka.instance.hostname=localhost
-eureka.client.register-with-eureka=false
-eureka.client.fetch-registry=false
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false
+    fetch-registry: false
 ```
 
 ## 服务生产者
@@ -88,10 +102,20 @@ public class DcController {
 
 **配置**
 
+`application.yml`
+
 ```conf
-spring.application.name=app-common-server
-server.port=2001
-eureka.client.serviceUrl.defaultZone=http://localhost:1001/eureka/
+spring:
+  application:
+    name: app-common-server
+
+server:
+  port: 2001
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1001/eureka/
 ```
 
 ## 服务消费者
@@ -136,14 +160,27 @@ public class DcController {
 
 **配置**
 
-```conf
-spring.application.name=app-common-client
-server.port=2101
+`application.yml`
 
-eureka.client.serviceUrl.defaultZone=http://localhost:1001/eureka/
+```conf
+spring:
+  application:
+    name: app-common-client
+
+server:
+  port: 2101
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1001/eureka/
 ```
 
-# Ribbon & Feign（服务调用与负载均衡）
+# Ribbon & Feign（负载均衡与服务调用）
+
+![](_v_images/20190726164553515_22104.png)
+
+![](_v_images/20190726164609905_25004.png)
 
 ## Ribbon
 
@@ -181,6 +218,24 @@ public class DcController {
     }
 
 }
+```
+
+**配置**
+
+`application.yml`
+
+```conf
+spring:
+  application:
+    name: app-common-client-ribbon
+
+server:
+  port: 2201
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1001/eureka/
 ```
 
 ## Fegin
@@ -236,28 +291,166 @@ public class DcController {
 
 **配置**
 
-```conf
-spring.application.name=app-common-client-fegin
-server.port=2201
+`application.yml`
 
-eureka.client.serviceUrl.defaultZone=http://localhost:1001/eureka/
+```conf
+spring:
+  application:
+    name: app-common-client-fegin
+
+server:
+  port: 2301
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1001/eureka/
 ```
 
 # Spring Cloud Config（分布式配置中心）
 
+![](_v_images/20190726164632069_5034.png)
+
 Spring Cloud Config用于为分布式系统提供集中化的外部配置管理，分为服务端与客户端两个部分。其中服务端也称为分布式配置中心，它是一个独立的微服务应用，用来连接配置仓库并为客户端提供获取配置信息、加密/解密信息等访问接口；而客户端则是微服务架构中的各个微服务应用或基础设施，它们通过指定的配置中心来管理应用资源与业务相关的配置内容，并在启动的时候从配置中心获取和加载配置信息。
 
-Spring Cloud Config可以通过部署注册多个服务端来通过负载均衡实现高可用，同时客户端开出了`/refresh`服务刷新接口，可以配合如Git的WebHook以及Spring Cloud Bus（消息总线实现配置广播刷新）来实现应用配置的热更新。另外Spring Cloud Config也支持其他如SVN、本地文件作为配置数据源。
+Spring Cloud Config可以通过部署注册多个服务端来通过负载均衡实现高可用，同时客户端开出了`/refresh`服务刷新接口，可以配合如Git的WebHook以及Spring Cloud Bus（消息总线实现配置广播刷新）来实现应用配置的热更新。另外Spring Cloud Config也支持其他如：MySQL、SVN、本地文件等作为配置数据源。
 
-Spring Cloud Config的缺点在于官方没有提供Dashboard，目前有开源的项目如：[Spring Cloud Config Admin](https://github.com/dyc87112/spring-cloud-config-admin)。
+Spring Cloud Config官方没有提供Dashboard，目前有开源的项目如：[Spring Cloud Config Admin](https://github.com/dyc87112/spring-cloud-config-admin)。
+
+## Config Server
+
+配置中心服务端
+
+**入口**
+
+```java
+@EnableConfigServer//启用分布式配置中心
+@EnableConfigServer//启用服务发现
+@SpringBootApplication
+public class Application {
+
+	public static void main(String[] args) {
+		new SpringApplicationBuilder(Application.class).web(true).run(args);
+	}
+
+}
+```
+
+**配置**
+
+`application.yml`
+
+```java
+server:
+  port: 2401
+  servlet:
+    context-path: /
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1001/eureka/
+
+#spring boot 2.0以下使用
+management:
+  security:
+    enabled: false
+
+spring:
+  application:
+    name: app-config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitee.com/GobhaZeng/SpringCloudConfig.git
+          searchPaths: config-repo
+          defaultLabel: master
+```
+
+访问配置信息的URL与配置文件的映射关系：
+
+- /{application}/{profile}[/{label}]
+- /{application}-{profile}.yml
+- /{label}/{application}-{profile}.yml
+- /{application}-{profile}.properties
+- /{label}/{application}-{profile}.properties
+
+比如，要访问master分支，config-repo应用的dev环境，就可以访问这个url：http://localhost:2401/config-repo/dev/master
+
+## Config Client
+
+配置中心客户端
+
+**入口**
+
+```java
+@EnableDiscoveryClient
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(Application.class).web(true).run(args);
+    }
+
+}
+```
+
+**Controller**
+
+```java
+@RefreshScope
+@RestController
+public class TestController {
+
+    @Value("${from}")
+    private String from;
+
+    @RequestMapping("/from")
+    public String from() {
+        return this.from;
+    }
+
+}
+```
+
+**配置**
+
+`bootstrap.yml`
+
+```conf
+spring:
+  application:
+    name: config-client
+  cloud:
+    config:
+      discovery:
+        enabled: true #开启通过服务来访问Config Server的功能
+        serviceId: app-config-server #指定Config Server注册的服务名
+      profile: dev
+
+server:
+  port: 2501
+```
+
+配置参数与Git中存储的配置文件中各个部分的对应关系如下：
+
+- `spring.application.name`：对应配置文件规则中的{application}部分
+- `spring.cloud.config.profile`：对应配置文件规则中的{profile}部分
+- `spring.cloud.config.label`：对应配置文件规则中的{label}部分
+- `spring.cloud.config.uri`：配置中心config-server的地址
 
 # Hystrix（服务容错）
 
-
+![](_v_images/20190726164250878_16870.png)
 
 # Zuul（服务网关）
 
+![](_v_images/20190726165520361_19701.png)
+
 # Spring Cloud Stream（消息驱动）
+
+![](_v_images/20190726191520599_4533.png)
 
 ## 概念
 
@@ -298,5 +491,7 @@ Spring Cloud Stream 可以动态的选择一个消息队列是持久化，还是
 ## 消息分区
 
 # Spring Cloud Sleuth（分布式服务跟踪【链路追踪】）
+
+![](_v_images/20190726191542286_5696.png)
 
 # 
