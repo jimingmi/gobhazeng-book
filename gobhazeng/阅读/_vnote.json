@@ -8,6 +8,9 @@
         },
         {
             "name": "Java并发编程实战"
+        },
+        {
+            "name": "Redis"
         }
     ],
     "version": "1"
