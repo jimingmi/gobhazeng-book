@@ -1,3 +1,4 @@
+vnote_backup_file_826537664 D:/synchro/gobhazeng-book/gobhazeng/Java/概念/CGLIB动态代理.md
 # CGLIB动态代理
 
 CGLIB实现的动态代理，完全不受代理类必须实现接口的限制，而且CGLIB底层采用ASM字节码生成框架，使用字节码技术生成代理类，比使用Java反射效率要高。唯一需要注意的是，CGLIB不能对声明为static、final的方法进行代理，因为CGLIB原理是动态生成被代理类的子类。
