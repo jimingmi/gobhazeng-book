@@ -1,3 +1,4 @@
+vnote_backup_file_826537664 C:/Users/admin/Desktop/synchro/gobhazeng-book/gobhazeng/专题/Study/基础.md
 # 数据结构、算法
 
 # Java基础
@@ -173,7 +174,7 @@ A：原子性：要么全部成功，要么全部失败回滚
 
 C：一致性：事务执行后，数据库要处于一致性状态
 
-I：事务性
+I：隔离性：
 
 D：持久性
 
