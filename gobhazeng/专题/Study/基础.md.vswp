@@ -11,7 +11,9 @@ vnote_backup_file_826537664 C:/Users/admin/Desktop/synchro/gobhazeng-book/gobhaz
 
 ## 多个RPC请求进来，服务器怎么处理并发呢
 
-# Java基础
+# Java
+
+## 基础
 
 ## Java类执行顺序
 
@@ -45,13 +47,33 @@ vnote_backup_file_826537664 C:/Users/admin/Desktop/synchro/gobhazeng-book/gobhaz
 
 **双亲委派模型**
 
-## JVM数据存储模型
+### Java异常分类及处理
 
-- 程序计数器：标记java字节码执行位置
-- java虚拟机栈：线程私有，每个方法执行都会创建一个栈帧，用于保存局部变量、操作栈、动态链接等
+### Java反射
+
+### Java注解
+
+### Java内部类
+
+### Java泛型
+
+### Java序列化(创建可复用的Java对象)
+
+### Java复制
+
+## JVM
+
+### 线程
+
+### JVM内存区域
+
+- 程序计数器：标记Java字节码执行位置
+- Java虚拟机栈：线程私有，每个方法执行都会创建一个栈帧，用于保存局部变量、操作栈、动态链接等
 - 本地方法栈：为native方法提供服务
-- java堆：线程共享，保存对象的实例
+- Java堆：线程共享，保存对象的实例
 - 方法区：线程共享，类信息、常量、静态变量
+
+### JVM运行时内存
 
 ## 新生代、年老代的构造
 
@@ -59,13 +81,20 @@ vnote_backup_file_826537664 C:/Users/admin/Desktop/synchro/gobhazeng-book/gobhaz
 
 老年代：JDK8前，存在持久代，在堆中；JDK8后，元空间取代持久代，在本地内存
 
-## java GC算法，什么时候会触发minor gc，什么时候会触发full gc？
+### 垃圾回收与算法
 
 GC算法：复制算法、标记整理、标记清除
 
 触发minor gc：eden空间不足、大对象分配eden
 
 触发full gc：直接调用System.gc、空间分配担保失败（晋升到老年代的平均对象大小大于老年代的剩余大小）、老年代空间不足、持久代空间不足、元空间不足
+
+### Java四中引用类型
+
+- 强引用：
+- 软引用：
+- 弱引用：
+- 虚引用：
 
 ## GC 可达性分析中哪些算是GC ROOT？
 
@@ -74,6 +103,10 @@ GC算法：复制算法、标记整理、标记清除
 - 常量引用
 - native方法引用
 
+### GC分代收集算法VS分区收集算法
+
+### GC垃圾收集器
+
 ## 你熟悉的JVM调优参数，使用过哪些调优工具？
 
 最大堆内存、最小堆内存（调整一致，防止扩容）
@@ -81,6 +114,26 @@ GC算法：复制算法、标记整理、标记清除
 设置元空间大小、设置堆外内存大小、dump堆内存异常日志
 
 **工具：** 内置的 jstat、jmap、VisualVM
+
+## 多线程
+
+## 集合
+
+## IO
+
+### Java IO/NIO
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Java 有什么锁类型?
 
@@ -106,7 +159,7 @@ CAS 比较并交换
 
 基于的redis分布式锁、基于Zookeeper分布式锁
 
-## JAVA线程池有哪些参数，如果自己设计一个线程池要考虑哪些问题？
+## Java线程池有哪些参数，如果自己设计一个线程池要考虑哪些问题？
 
 - corePoolSize：核心工作线程数
 - maximumPoolSize：最大核心工作线程数
@@ -117,7 +170,7 @@ CAS 比较并交换
 
 ## 描述下线程池的处理流程？
 
-java线程池的核心类是ThreadPoolExecutor，其核心是CTL：记录有效线程数量，线程状态
+Java线程池的核心类是ThreadPoolExecutor，其核心是CTL：记录有效线程数量，线程状态
 
 RUNNING状态：线程池正常运行，可以接受新的任务并处理队列中的任务；
 
@@ -192,7 +245,7 @@ HashTable
 
 使用了同步锁
 
-## JAVA网络编程中：BIO、NIO、AIO的区别和联系
+## Java网络编程中：BIO、NIO、AIO的区别和联系
 
 BIO：同步阻塞模型，一请求一应答，如果要处理多个客户端请求，必须使用多线程，开销大
 
@@ -219,7 +272,7 @@ ThreadLocal即线程局部变量，可以很好的解决线程安全问题。
 
 ## session的生命周期是多久
 
-如果是java的中的httpservletsession的话，默认30分钟，可设置。
+如果是Java的中的httpservletsession的话，默认30分钟，可设置。
 
 # Spring
 
@@ -257,6 +310,8 @@ D：持久性：一旦事务提交，那么它对数据库中的对应数据的�
 默认是innodb，支持标准的ACID事务，锁粒度支持行级锁，支持聚集索引
 
 ## mysql实现事务的原理(MVCC)
+
+MVCC，即多版本并发控制，
 
 ## 聚集索引和非聚集索引知道吗？什么情况用聚集索引什么情况用非聚集索引
 
